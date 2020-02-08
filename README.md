@@ -6,9 +6,9 @@ None right now, we will add some in the future
 
 **Server Folder:**  
 This is the folder that you want your server to be in. It will contain the plugins, worlds, and all the other goodies inside your server. On Windows it should look like:  
-`C:\Users\henry0w\server-folder`  
+`C:\Users\henry0w\server-folder\ `  
 On Linux and BSD it should look like:  
-`/home/henry0w/server-folder`  
+`/home/henry0w/server-folder/`  
 If your folder includes whitespace, put quotes around the path.  
 
 **Server Software:**  
