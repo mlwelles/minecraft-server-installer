@@ -1,0 +1,3 @@
+java-args: -Xms1g -Xmx2G
+#By changing this to true, you agree to the Mojang EULA for ALL servers you create using this Utility
+eula: false
