@@ -1,4 +1,4 @@
-package minecraft_server_installer
+package main
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -34,14 +33,14 @@ func ModifyEula(path string) {
 		log.Fatal("Error: Failed to read eula \n \n", err)
 	}
 	eulaString := string(eula)
-	updatedEula := strings.Replace(eulaString, "false", strconv.FormatBool(getEula()), -1)
+	updatedEula := strings.Replace(eulaString, "false", os.Getenv("MCINSTALLER_MOJANG_EULA"), -1)
 	err = ioutil.WriteFile(path+"eula.txt", []byte(updatedEula), 0400)
 	if err != nil {
 		log.Fatal("Error: Failed to write to eula \n \n", err)
 	}
 }
 func RunServer(filepath string, dirPath string) {
-	cmd := exec.Command("java", "-jar", getJavaArgs(), filepath)
+	cmd := exec.Command("java", "-jar", os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS"), filepath)
 	cmd.Dir = dirPath
 	outPipe, _ := cmd.StdoutPipe()
 	go fmt.Print(outPipe)
@@ -61,7 +60,7 @@ func RunServer(filepath string, dirPath string) {
 	}
 }
 func installBuildTools(path string, rev string) {
-	cmd := exec.Command("java", "-jar", getJavaArgs(), path+"BuildTools.jar", "--rev", rev)
+	cmd := exec.Command("java", "-jar", os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS"), path+"BuildTools.jar", "--rev", rev)
 	cmd.Dir = path
 	err := cmd.Start()
 	if err != nil {

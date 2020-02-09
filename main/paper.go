@@ -1,4 +1,4 @@
-package minecraft_server_installer
+package main
 
 import (
 	"fmt"
