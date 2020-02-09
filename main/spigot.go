@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,7 +26,16 @@ func InstallSpigot(path string, rev string) {
 	RunServer(path+"spigot-"+rev+".jar", path)
 	fmt.Println("Modifying eula...")
 	ModifyEula(path)
+	fmt.Println("Done!")
 
+}
+func ReadAndPrint(pipe io.Reader) {
+	scanner := bufio.NewScanner(pipe)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
 }
 func ModifyEula(path string) {
 	eula, err := ioutil.ReadFile(path + "eula.txt")
@@ -40,46 +50,65 @@ func ModifyEula(path string) {
 	}
 }
 func RunServer(filepath string, dirPath string) {
-	cmd := exec.Command("java", "-jar", os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS"), filepath)
+	cmd := exec.Command("java", "-jar" /*, os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS")*/, filepath)
 	cmd.Dir = dirPath
 	outPipe, _ := cmd.StdoutPipe()
-	go fmt.Print(outPipe)
+	go ReadAndPrint(outPipe)
 	inPipe, _ := cmd.StdinPipe()
 	err := cmd.Start()
 	if err != nil {
 		log.Fatal("Error: Problem occurred when starting server \n \n", err)
 	}
 	time.Sleep(time.Second * 3)
-	_, err = inPipe.Write([]byte("stop"))
-	if err != nil {
+	_, _ = inPipe.Write([]byte("stop"))
+	/*if err != nil {
 		log.Fatal("Error: Failed to write \"Stop\" to minecraft server \n \n", err)
-	}
+	}*/
 	err = cmd.Wait()
 	if err != nil {
 		log.Fatal("Error: Something weird happened when waiting for server to stop \n \n", err)
 	}
 }
 func installBuildTools(path string, rev string) {
-	cmd := exec.Command("java", "-jar", os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS"), path+"BuildTools.jar", "--rev", rev)
+	cmd := exec.Command("java" /*, os.Getenv("MCINSTALLER_SERVER_JAVA_ARGS")*/, "-jar", path+"BuildTools.jar", "--rev", rev)
 	cmd.Dir = path
-	err := cmd.Start()
+	/*var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		return
+	}
+	fmt.Println("Result: " + out.String())*/
+	outPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Print(err)
+	}
+	err = cmd.Start()
 	if err != nil {
 		log.Fatal("Error: Failed to run spigot installer (BuildTools) \n \n", err)
 	}
-	outPipe, errPipe := cmd.StdoutPipe()
 	/*if err != nil{
 		log.Fatal("Error: Failed to show spigot installer (BuildTools) output \n \n", err)
 	}*/
-	go fmt.Print(outPipe)
-	go fmt.Print(errPipe)
+	scanner := bufio.NewScanner(outPipe)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	//ReadAndPrint(errPipe)
 	err = cmd.Wait()
 	if err != nil {
-		log.Fatal("Error: Something weird happened when waiting for installer (BuildTools) to complete \n \n", err)
+		panic(err)
+		//log.Fatal("Error: Something weird happened when waiting for installer (BuildTools) to complete \n \n", err)
 	}
 }
 func downloadBuildTools(path string, rev string) {
 	jarUrl := "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-	err := DownloadFile(path+"spigot-"+rev+".jar", jarUrl)
+	err := DownloadFile(path+"BuildTools.jar", jarUrl)
 	if err != nil {
 		log.Fatal("Error: Failed to download spigot (BuildTools) \n \n", err)
 	}

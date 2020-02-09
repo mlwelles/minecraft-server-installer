@@ -22,11 +22,11 @@ func main() {
 	if flag.NArg() != 3 {
 		log.Fatal("error: wrong number of arguments")
 	}
-	path := flag.Arg(1)
-	rev := flag.Arg(3)
-	if flag.Arg(2) == "spigot" {
+	path := flag.Arg(0)
+	rev := flag.Arg(2)
+	if flag.Arg(1) == "spigot" {
 		InstallSpigot(path, rev)
-	} else if flag.Arg(2) == "paper" {
+	} else if flag.Arg(1) == "paper" {
 		InstallPaper(path, rev)
 	}
 

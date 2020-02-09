@@ -14,6 +14,7 @@ func InstallPaper(path string, rev string) {
 	RunServer(path+"paper.jar", path)
 	fmt.Println("Modifying eula...")
 	ModifyEula(path)
+	fmt.Println("Done!")
 }
 func downloadPaper(path string, rev string) {
 	paper188 := "https://papermc.io/ci/job/Paper/443/artifact/paperclip.jar"
